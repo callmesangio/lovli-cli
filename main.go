@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const endpoint string = "https://lovli.test/redirections"
+const endpoint string = "https://lovli.fyi/redirections"
 
 type Redirection struct {
 	ShortUrl string `json:"short_url"`
