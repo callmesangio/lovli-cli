@@ -32,3 +32,5 @@ go.work.sum
 # .vscode/
 
 /lovli
+/dist/
+/.bundle/
