@@ -34,7 +34,7 @@ func (c *Client) Shorten(longURL *string) (*Redirection, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusOK {
-		return redirection(res.Body)
+		return unmarshal(res.Body)
 	}
 	return nil, errorBy(res.StatusCode)
 }
@@ -47,7 +47,7 @@ func (c *Client) request(longURL *string) *http.Request {
 	return req
 }
 
-func redirection(body io.ReadCloser) (*Redirection, error) {
+func unmarshal(body io.ReadCloser) (*Redirection, error) {
 	red := &Redirection{}
 	err := json.NewDecoder(body).Decode(red)
 	if err != nil {
