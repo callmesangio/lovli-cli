@@ -3,7 +3,6 @@ package lovli
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +12,20 @@ import (
 type Redirection struct {
 	ShortURL string `json:"short_url"`
 }
+
+type Error struct {
+	Text string
+	Err  error
+}
+
+func (e *Error) Error() string {
+	if e.Err != nil {
+		return fmt.Sprintf("%s (%s)", e.Text, e.Err.Error())
+	}
+	return fmt.Sprintf("%s", e.Text)
+}
+
+func (e *Error) Unwrap() error { return e.Err }
 
 type Client struct {
 	client   *http.Client
@@ -30,7 +43,7 @@ func (c *Client) Shorten(longURL *string) (*Redirection, error) {
 	req := c.request(longURL)
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, &Error{"transport error", err}
 	}
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusOK {
@@ -51,7 +64,7 @@ func unmarshal(body io.ReadCloser) (*Redirection, error) {
 	red := &Redirection{}
 	err := json.NewDecoder(body).Decode(red)
 	if err != nil {
-		return nil, err
+		return nil, &Error{"unmarshaling error", err}
 	}
 	return red, nil
 }
@@ -59,10 +72,10 @@ func unmarshal(body io.ReadCloser) (*Redirection, error) {
 func errorBy(statusCode int) error {
 	switch statusCode {
 	case http.StatusBadRequest:
-		return errors.New("Invalid URL")
+		return &Error{"invalid URL", nil}
 	case http.StatusTooManyRequests:
-		return errors.New("Try again later")
+		return &Error{"try again later", nil}
 	default:
-		return fmt.Errorf("Unexpected error (%d)", statusCode)
+		return &Error{fmt.Sprintf("unexpected error (%d)", statusCode), nil}
 	}
 }

@@ -95,7 +95,8 @@ func TestTransportError(t *testing.T) {
 	if err == nil {
 		t.Fatal("`err` expected not to be `nil`")
 	}
-	if err.Error() != `Post "https://service.endpoint.example.com": Transport error` {
+	if err.Error() != "transport error "+
+		`(Post "https://service.endpoint.example.com": Transport error)` {
 		t.Errorf("Unexpected error message: %s", err)
 	}
 }
@@ -118,7 +119,7 @@ func TestRedirectionUnmarshalingFailure(t *testing.T) {
 	if err == nil {
 		t.Fatal("`err` expected not to be `nil`")
 	}
-	if err.Error() != "unexpected EOF" {
+	if err.Error() != "unmarshaling error (unexpected EOF)" {
 		t.Errorf("Unexpected error message: %s", err)
 	}
 }
@@ -128,9 +129,9 @@ func TestResponseStatusCodeFailure(t *testing.T) {
 	var err error
 
 	for statusCode, message := range map[int]string{
-		http.StatusBadRequest:         "Invalid URL",
-		http.StatusTooManyRequests:    "Try again later",
-		http.StatusServiceUnavailable: "Unexpected error (503)",
+		http.StatusBadRequest:         "invalid URL",
+		http.StatusTooManyRequests:    "try again later",
+		http.StatusServiceUnavailable: "unexpected error (503)",
 	} {
 		client := newTestClient(func(req *http.Request) *http.Response {
 			return &http.Response{StatusCode: statusCode}
@@ -171,5 +172,26 @@ func TestSuccess(t *testing.T) {
 	}
 	if redirection.ShortURL != "https://example.com/abcd" {
 		t.Errorf("Unexpected short URL: %s", redirection.ShortURL)
+	}
+}
+
+func TestError(t *testing.T) {
+	var err, wrapped error
+	wrapped = errors.New("bar")
+
+	err = &Error{Text: "foo", Err: wrapped}
+	if err.Error() != "foo (bar)" {
+		t.Errorf("Unexpected error message: %s", err)
+	}
+	if !errors.Is(err, wrapped) {
+		t.Errorf(`"%s" should wrap "%s"`, err, wrapped)
+	}
+
+	err = &Error{Text: "foo", Err: nil}
+	if err.Error() != "foo" {
+		t.Errorf("Unexpected error message: %s", err)
+	}
+	if errors.Is(err, wrapped) {
+		t.Errorf(`"%s" should not wrap "%s"`, err, wrapped)
 	}
 }
