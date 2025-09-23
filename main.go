@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/callmesangio/lovli-cli/lovli"
+	"github.com/callmesangio/lovli-cli/internal/lovli"
 )
 
 func main() {
