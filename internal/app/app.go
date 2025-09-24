@@ -77,15 +77,20 @@ func (a *App) printHelp() error {
 }
 
 func (a *App) shortenURL() error {
-	if a.longURL == "" || strings.HasPrefix(a.longURL, "-") {
+	longURL := strings.TrimSpace(a.longURL)
+	if !isValidURL(&longURL) {
 		return errors.New("invalid URL")
 	}
-	redirection, err := a.client.Shorten(&a.longURL)
+	redirection, err := a.client.Shorten(&longURL)
 	if err != nil {
 		return err
 	}
 	fmt.Fprintln(a.stdout, redirection.ShortURL)
 	return nil
+}
+
+func isValidURL(longURL *string) bool {
+	return *longURL != "" && !strings.HasPrefix(*longURL, "-")
 }
 
 func Run(args []string) int {
