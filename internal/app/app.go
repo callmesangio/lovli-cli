@@ -11,7 +11,7 @@ import (
 	"github.com/callmesangio/lovli-cli/internal/lovli"
 )
 
-var version string = "unreleased"
+const version string = "unreleased"
 
 type shortener interface {
 	Shorten(longURL *string) (*lovli.Redirection, error)
