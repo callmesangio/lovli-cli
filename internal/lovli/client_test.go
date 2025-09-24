@@ -158,7 +158,9 @@ func TestSuccess(t *testing.T) {
 	client := newTestClient(func(req *http.Request) *http.Response {
 		return &http.Response{
 			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(`{"short_url": "https://example.com/abcd"}`)),
+			Body: io.NopCloser(
+				strings.NewReader(`{"short_url": "https://example.com/abcd"}`),
+			),
 		}
 	})
 
