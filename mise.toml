@@ -3,3 +3,7 @@ go = "1.25.1"
 
 [env]
 GOPATH = "{{env.PWD}}/.go"
+
+[tasks.clean]
+description = "Clean up the repo"
+run = "rm -rf lovli-cli .go"
