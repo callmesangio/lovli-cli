@@ -25,7 +25,7 @@ brew install --no-quarantine --cask callmesangio/lovli-cli/lovli-cli
 
 - Download a release tarball from [here](https://github.com/callmesangio/lovli-cli/releases).
 - Untar the archive.
-- Run `xattr -dr "com.apple.quarantine" /path/to/lovli`.
+- macOS only: run `xattr -dr "com.apple.quarantine" /path/to/lovli`.
 - Copy the `lovli` binary to a directory in your `$PATH`.
 
 ## Usage
