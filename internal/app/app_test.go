@@ -137,7 +137,7 @@ func TestShortenInvalidArgument(t *testing.T) {
 		if stdout.String() != "" {
 			t.Error("Unexpected stdout")
 		}
-		if stderr.String() != "invalid URL\n" {
+		if stderr.String() != "ERR: invalid URL\n" {
 			t.Error("Unexpected stderr")
 		}
 
@@ -174,7 +174,7 @@ func TestShortenFailure(t *testing.T) {
 	if stdout.String() != "" {
 		t.Error("Unexpected stdout")
 	}
-	if stderr.String() != "an error occurred\n" {
+	if stderr.String() != "ERR: an error occurred\n" {
 		t.Error("Unexpected stderr")
 	}
 }

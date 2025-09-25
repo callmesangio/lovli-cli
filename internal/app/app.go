@@ -32,7 +32,7 @@ func (a *App) Run(args []string) int {
 		return 2
 	}
 	if err = a.run(); err != nil {
-		fmt.Fprintln(a.stderr, err)
+		fmt.Fprintln(a.stderr, "ERR:", err)
 		return 1
 	}
 	return 0
