@@ -78,7 +78,7 @@ func (a *App) printHelp() error {
 
 func (a *App) shortenURL() error {
 	longURL := strings.TrimSpace(a.longURL)
-	if !isValidURL(&longURL) {
+	if longURL == "" {
 		return errors.New("invalid URL")
 	}
 	redirection, err := a.client.Shorten(&longURL)
@@ -87,10 +87,6 @@ func (a *App) shortenURL() error {
 	}
 	fmt.Fprintln(a.stdout, redirection.ShortURL)
 	return nil
-}
-
-func isValidURL(longURL *string) bool {
-	return *longURL != "" && !strings.HasPrefix(*longURL, "-")
 }
 
 func Run(args []string) int {

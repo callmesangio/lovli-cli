@@ -127,9 +127,7 @@ func TestShortenInvalidArgument(t *testing.T) {
 
 	for _, args := range [][]string{
 		{"-s", ""},
-		{"-s", " "},
-		{"-s", "-arg"},
-		{"-s", " -arg "},
+		{"-s", "\t "},
 	} {
 		status := app.Run(args)
 
