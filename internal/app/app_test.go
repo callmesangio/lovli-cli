@@ -20,14 +20,14 @@ var usage = strings.Join(
 	"\n",
 )
 
-type testShortener func() (*lovli.Redirection, error)
+type testShortener func(*string) (*lovli.Redirection, error)
 
 func (f testShortener) Shorten(longURL *string) (*lovli.Redirection, error) {
-	return f()
+	return f(longURL)
 }
 
 func nullShortener() testShortener {
-	return func() (*lovli.Redirection, error) {
+	return func(*string) (*lovli.Redirection, error) {
 		return &lovli.Redirection{}, nil
 	}
 }
@@ -146,9 +146,22 @@ func TestShortenInvalidArgument(t *testing.T) {
 	}
 }
 
+func TestShortenURLForwarding(t *testing.T) {
+	stdout, stderr := &strings.Builder{}, &strings.Builder{}
+	var client testShortener = func(longURL *string) (*lovli.Redirection, error) {
+		if *longURL != "https://long.url.example.com" {
+			t.Errorf("Unexpected URL: %s", *longURL)
+		}
+		return &lovli.Redirection{}, nil
+	}
+	app := &App{stdout: stdout, stderr: stderr, client: client}
+
+	app.Run([]string{"-s", "https://long.url.example.com"})
+}
+
 func TestShortenFailure(t *testing.T) {
 	stdout, stderr := &strings.Builder{}, &strings.Builder{}
-	var client testShortener = func() (*lovli.Redirection, error) {
+	var client testShortener = func(*string) (*lovli.Redirection, error) {
 		return nil, errors.New("an error occurred")
 	}
 	app := &App{stdout: stdout, stderr: stderr, client: client}
@@ -168,7 +181,7 @@ func TestShortenFailure(t *testing.T) {
 
 func TestShortenSuccess(t *testing.T) {
 	stdout, stderr := &strings.Builder{}, &strings.Builder{}
-	var client testShortener = func() (*lovli.Redirection, error) {
+	var client testShortener = func(*string) (*lovli.Redirection, error) {
 		return &lovli.Redirection{ShortURL: "https://example.com/abcd"}, nil
 	}
 	app := &App{stdout: stdout, stderr: stderr, client: client}
@@ -188,10 +201,7 @@ func TestShortenSuccess(t *testing.T) {
 
 func TestFlagPriority(t *testing.T) {
 	stdout, stderr := &strings.Builder{}, &strings.Builder{}
-	var client testShortener = func() (*lovli.Redirection, error) {
-		return &lovli.Redirection{ShortURL: "https://example.com/abcd"}, nil
-	}
-	app := &App{stdout: stdout, stderr: stderr, client: client}
+	app := &App{stdout: stdout, stderr: stderr, client: nullShortener()}
 
 	app.Run([]string{"-s", "https://long.url.example.com", "-v", "-h"})
 	if stdout.String() != fmt.Sprintf("%s\n", version) {
