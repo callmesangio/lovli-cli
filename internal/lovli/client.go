@@ -53,7 +53,7 @@ func (c *Client) Shorten(longURL *string) (*Redirection, error) {
 }
 
 func (c *Client) request(longURL *string) *http.Request {
-	body := fmt.Appendf([]byte{}, `{"location": "%s"}`, *longURL)
+	body, _ := json.Marshal(map[string]string{"location": *longURL})
 	req, _ := http.NewRequest("POST", c.endpoint, bytes.NewBuffer(body))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")

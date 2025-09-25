@@ -2,6 +2,7 @@ package lovli
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -31,15 +32,20 @@ func longURL() *string {
 }
 
 func TestRequestPayload(t *testing.T) {
-	client := newTestClient(func(req *http.Request) *http.Response {
-		data, _ := io.ReadAll(req.Body)
-		if string(data) != `{"location": "https://long.url.example.com"}` {
-			t.Errorf("Unexpected payload: %s", data)
-		}
-		return &http.Response{}
-	})
+	for in, out := range map[string]string{
+		`\t&`:      `\\t\u0026`,
+		*longURL(): *longURL(),
+	} {
+		client := newTestClient(func(req *http.Request) *http.Response {
+			data, _ := io.ReadAll(req.Body)
+			if string(data) != fmt.Sprintf(`{"location":"%s"}`, out) {
+				t.Errorf("Unexpected payload: %s", data)
+			}
+			return &http.Response{}
+		})
 
-	client.Shorten(longURL())
+		client.Shorten(&in)
+	}
 }
 
 func TestRequestDetails(t *testing.T) {
